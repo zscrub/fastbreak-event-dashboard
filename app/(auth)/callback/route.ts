@@ -1,14 +1,25 @@
+// app/(auth)/callback/route.ts
 export const runtime = "nodejs";
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: NextRequest) {
+  console.log("➡️ Callback route hit:", request.url);
+
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
-  if (!code) return NextResponse.redirect(new URL("/login", request.url));
+  if (!code) {
+    console.log("❌ No code found, redirecting to /login");
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
+  // Prepare redirect and response
+  const redirectTo = new URL("/dashboard", request.url);
+  const response = NextResponse.redirect(redirectTo);
+
+  // Create Supabase server client (Node runtime only)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,28 +30,28 @@ export async function GET(request: NextRequest) {
         },
         setAll(cookies) {
           cookies.forEach(({ name, value, ...options }) => {
-            request.cookies.set({ name, value, ...options });
+            console.log("🍪 Setting cookie:", name);
+            response.cookies.set({ name, value, ...options });
           });
         },
       },
     }
   );
 
-  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
+  console.log("🔄 Exchanging code for session...");
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-  console.log("🔐 exchangeCodeForSession:", {
-    user: sessionData?.session?.user?.email,
-    access_token: !!sessionData?.session?.access_token,
-    error: error?.message ?? null,
-  });
+  if (error) {
+    console.error("❌ Supabase exchange error:", error.message);
+    return NextResponse.redirect(new URL("/login?error=auth", request.url));
+  }
 
-  // ✅ Redirect *after* cookies are available
-  const response = NextResponse.redirect(new URL("/dashboard", request.url));
-  sessionData?.session?.access_token && response.cookies.set(
-    "sb-access-token",
-    sessionData.session.access_token,
-    { path: "/", httpOnly: true, sameSite: "lax" }
-  );
+  console.log("✅ Session exchange successful!");
+  console.log("👤 User email:", data?.session?.user?.email);
+
+  if (!data?.session) {
+    console.error("⚠️ No session returned — possible cookie issue");
+  }
 
   return response;
 }
