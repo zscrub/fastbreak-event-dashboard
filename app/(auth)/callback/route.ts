@@ -5,7 +5,10 @@ import { createServerClient } from '@supabase/ssr';
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
-  const response = NextResponse.redirect(new URL('/dashboard', request.url));
+  const next = url.searchParams.get('next') ?? '/dashboard';
+
+  const redirectUrl = new URL(next, request.url);
+  const response = NextResponse.redirect(redirectUrl);
 
   if (!code) return response;
 
@@ -15,7 +18,7 @@ export async function GET(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return [];
+          return request.cookies.getAll();
         },
         setAll(cookies) {
           for (const { name, value, ...options } of cookies) {
@@ -26,7 +29,8 @@ export async function GET(request: NextRequest) {
     }
   );
 
+  // ✅ Exchange the code for a session and set cookies
   await supabase.auth.exchangeCodeForSession(code);
+
   return response;
 }
-
