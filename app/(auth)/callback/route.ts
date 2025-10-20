@@ -44,5 +44,14 @@ export async function GET(request: NextRequest) {
     console.error("Callback error:", err);
   }
 
+  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  console.log('🔐 Supabase session response:', {
+    user: sessionData?.session?.user?.email,
+    access_token: sessionData?.session?.access_token ? '✅ received' : '❌ missing',
+    error: error?.message ?? null,
+  });
+
+
   return response;
 }
