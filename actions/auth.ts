@@ -18,14 +18,14 @@ export async function signInWithPasswordAction(formData: FormData) {
   redirect('/dashboard'); // sets cookies and navigates
 }
 
+//   redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:3000'}/callback`,
+// redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
 export async function signInWithGoogleAction() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-    //   redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:3000'}/callback`,
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
-
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/callback`,
     },
   });
   if (error) return { ok: false, message: error.message };
