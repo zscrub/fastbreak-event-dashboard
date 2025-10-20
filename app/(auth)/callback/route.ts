@@ -3,11 +3,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
 export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const next = url.searchParams.get('next') ?? '/dashboard';
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get('code');
 
-  const redirectUrl = new URL(next, request.url);
+  // Always redirect to dashboard (or wherever)
+  const redirectUrl = new URL('/dashboard', request.url);
   const response = NextResponse.redirect(redirectUrl);
 
   if (!code) return response;
@@ -21,16 +21,22 @@ export async function GET(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookies) {
-          for (const { name, value, ...options } of cookies) {
+          // ✅ Properly sets returned session cookies on response
+          cookies.forEach(({ name, value, ...options }) => {
             response.cookies.set({ name, value, ...options });
-          }
+          });
         },
       },
     }
   );
 
-  // ✅ Exchange the code for a session and set cookies
-  await supabase.auth.exchangeCodeForSession(code);
+  try {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) console.error('Auth exchange error:', error);
+    else console.log('✅ Session exchange success:', data?.session?.user?.email);
+  } catch (err) {
+    console.error('Callback handler error:', err);
+  }
 
   return response;
 }
