@@ -70,7 +70,8 @@ export default function LoginForm() {
         <form
           action={async () => {
             const { url } = await signInWithGoogleAction();
-            return url ? (globalThis.location.href = url) : null;
+            if (url) globalThis.location.href = url;
+
           }}
         >
           <Button
