@@ -49,8 +49,8 @@ export async function createEvent(input: EventInputType) {
 export async function updateEvent(id: string, input: EventInputType) {
   const supabase = createClient();
 
-  // 1️⃣ Try to update the event
-  const { count: updateCount, error: updErr } = await supabase
+  // 1️⃣ Update the main event
+  const { data, error } = await supabase
     .from('events')
     .update({
       name: input.name,
@@ -59,44 +59,65 @@ export async function updateEvent(id: string, input: EventInputType) {
       description: input.description ?? null,
     })
     .eq('id', id)
-    .select('id', { count: 'exact' });
+    .select('*'); // ✅ Return updated row(s) for verification
 
-  if (updErr) throw new Error(updErr.message);
-  if (!updateCount || updateCount === 0) {
+  // 2️⃣ Handle any Supabase error
+  if (error) {
+    console.error('Supabase update error:', error.message);
+    throw new Error(error.message);
+  }
+
+  // 3️⃣ RLS check — no rows returned means permission denied
+  if (!data || data.length === 0) {
     throw new Error("You don't have permission to edit this event.");
   }
 
-  // 2️⃣ Refresh event_venues relationships
-  const { error: delErr } = await supabase.from('event_venues').delete().eq('event_id', id);
-  if (delErr) throw new Error(delErr.message);
-
-  if (input.venue_ids?.length) {
-    const rows = input.venue_ids.map((vid) => ({ event_id: id, venue_id: vid }));
-    const { error: linkErr } = await supabase.from('event_venues').insert(rows);
-    if (linkErr) throw new Error(linkErr.message);
+  // 4️⃣ Delete existing event_venue links
+  const { error: delError } = await supabase.from('event_venues').delete().eq('event_id', id);
+  if (delError) {
+    console.error('Failed to delete existing event_venues:', delError.message);
+    throw new Error(delError.message);
   }
 
-  // 3️⃣ Revalidate dashboard page
+  // 5️⃣ Insert updated venue relationships
+  if (input.venue_ids?.length) {
+    const rows = input.venue_ids.map((venue_id) => ({ event_id: id, venue_id }));
+    const { error: linkError } = await supabase.from('event_venues').insert(rows);
+    if (linkError) {
+      console.error('Failed to insert new event_venues:', linkError.message);
+      throw new Error(linkError.message);
+    }
+  }
+
+  // 6️⃣ Revalidate the dashboard cache
   revalidatePath('/dashboard');
+
   return { ok: true };
 }
-
 
 export async function deleteEvent(id: string) {
   const supabase = createClient();
 
-  const { count, error } = await supabase
+  // 1️⃣ Attempt to delete the event
+  const { data, error } = await supabase
     .from('events')
     .delete()
     .eq('id', id)
-    .select('id', { count: 'exact' });
+    .select('id, name, sport_type, starts_at, description, owner_id, event_venues(venue_id, venues(name, city))')
 
-  if (error) throw new Error(error.message);
+  // 2️⃣ Handle Supabase errors
+  if (error) {
+    console.error('Supabase delete error:', error.message);
+    throw new Error(error.message);
+  }
 
-  if (!count || count === 0) {
+  // 3️⃣ RLS check — if no rows were deleted, permission was denied
+  if (!data || data.length === 0) {
     throw new Error("You don't have permission to delete this event.");
   }
 
+  // 4️⃣ Revalidate dashboard cache
   revalidatePath('/dashboard');
+
   return { ok: true };
 }
