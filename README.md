@@ -48,35 +48,6 @@ Users can log in with Google, create and manage sports events, and assign venues
 - Reusable venue entities
 - Linked to events through a many-to-many relationship (`event_venues`)
 
----
-
-## ⚙️ Project Structure
-
-app/
- ├─ (auth)/
- │   ├─ login/
- │   └─ callback/
- ├─ (protected)/
- │   ├─ dashboard/
- │   │   ├─ page.tsx
- │   │   ├─ DeleteButton.tsx
- │   │   ├─ filters.tsx
- │   ├─ events/
- │   │   ├─ new/
- │   │   ├─ [id]/edit/
- │   │   └─ [id]/page.tsx
-actions/
- ├─ events.ts
- ├─ auth.ts
-components/
- ├─ event-form.tsx
- ├─ ui/...
-lib/
- ├─ supabase/
- ├─ validators/
-
----
-
 ## 🧰 Setup & Installation
 
 ### 1️⃣ Clone the repository
@@ -143,20 +114,6 @@ Then open 👉 http://localhost:3000
 
 ---
 
-## 🌐 Deployment (Vercel + Supabase)
-
-1. Push your code to GitHub  
-2. Connect your repo on [Vercel](https://vercel.com)  
-3. Add the environment variables in **Project → Settings → Environment Variables**
-4. In Supabase:
-   - Navigate to **Auth → URL Configuration**
-   - Set:
-     - Site URL: `https://your-vercel-domain.vercel.app`
-     - Redirect URL: `https://your-vercel-domain.vercel.app/auth/callback`
-5. Deploy 🚀
-
----
-
 ## 🧠 Future Enhancements
 
 - [ ] User Profile Page (“My Events”)
@@ -169,10 +126,10 @@ Then open 👉 http://localhost:3000
 
 ## 👨‍💻 Author
 
-**[Your Name]**  
-Full-Stack Developer • Software Architect  
-🔗 [Portfolio / sammuti.com](https://sammuti.com)  
-🐙 [GitHub](https://github.com/<your-username>)
+**Zachary Rubin**  
+Full-Stack Developer • Software Engineer
+🐙 [GitHub](https://github.com/zscrub)
+💼 [LinkedIn](https://www.linkedin.com/in/zachary-rubin-453a98217/)
 
 ---
 
