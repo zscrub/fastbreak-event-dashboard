@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DeleteButton from '../../dashboard/DeleteButton';
 import { deleteEvent } from '@/actions/events';
+import Link from 'next/link';
 
 type Props = { params: { id: string } };
 
@@ -56,7 +57,12 @@ export default async function EventDetailsPage({ params }: Props) {
 
           <div className="flex gap-2 pt-4">
             <Button asChild variant="outline" size="sm">
-              <a href={`/events/${event.id}/edit`}>Edit</a>
+                 <Link
+                    href={`/events/${event.id}/edit`}
+                    className="transition cursor-pointer"
+                    >
+                    <div className="font-semibold">Edit Event</div>
+                </Link>
             </Button>
             <DeleteButton
               onDelete={async () => {

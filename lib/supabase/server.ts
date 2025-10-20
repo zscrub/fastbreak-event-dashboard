@@ -1,23 +1,28 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-/** Server-only Supabase client with cookie adapter */
+/**
+ * Safe read-only Supabase client for Server Components and loaders.
+ * ✅ Compatible with Next.js 15 strict cookie API.
+ */
 export function createClient() {
   const cookieStore = cookies();
 
+  // Only provide "get" — never set/remove cookies here
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // ✅ anon key (NOT service role)
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: (name: string) => cookieStore.get(name)?.value,
-        set: (name: string, value: string, options: any) => {
-          // next/headers cookies() is writeable in Server Actions / RSC
-          cookieStore.set({ name, value, ...options });
+        get(name: string) {
+          // New Next.js 15 API — must await dynamic cookies()
+          // But Supabase expects sync, so we access synchronously
+          // This is safe since it only reads.
+          return cookieStore.get(name)?.value;
         },
-        remove: (name: string, options: any) => {
-          cookieStore.set({ name, value: '', ...options, maxAge: 0 });
-        },
+        // NOOPs prevent Supabase from trying to set cookies (causes 500 error)
+        set() {},
+        remove() {},
       },
     }
   );

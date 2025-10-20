@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import EventForm from '@/components/event-form';
 import { updateEvent } from '@/actions/events';
+import { EventVenueLink } from '@/types/event';
 
 type Props = { params: { id: string } };
 
@@ -31,7 +32,8 @@ export default async function EditEventPage({ params }: Props) {
     sport_type: event.sport_type,
     starts_at: event.starts_at,
     description: event.description ?? '',
-    venue_ids: (event.event_venues ?? []).map((ev: any) => ev.venue_id),
+    // venue_ids: (event.event_venues ?? []).map((ev: any) => ev.venue_id),
+    venue_ids: (event.event_venues ?? []).map((ev: EventVenueLink) => ev.venue_id),
   };
 
   async function onUpdate(values: any) {
