@@ -18,14 +18,12 @@ export default function DeleteButton({ onDelete }: { onDelete: () => Promise<voi
 
   return (
     <Dialog>
-      {/* The button that opens the dialog */}
       <DialogTrigger asChild>
         <Button className="text-gray-700 hover:bg-gray-100 cursor-pointer" variant="outline" size="sm">
           Cancel Event
         </Button>
       </DialogTrigger>
 
-      {/* The modal itself */}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Cancel Event?</DialogTitle>
@@ -47,8 +45,13 @@ export default function DeleteButton({ onDelete }: { onDelete: () => Promise<voi
                 try {
                   await onDelete();
                   toast.success('Event cancelled');
-                } catch (e: any) {
-                  toast.error(e.message ?? 'Failed to cancel event');
+                }   
+                catch (e: unknown) {
+                  if (e instanceof Error) {
+                    toast.error(e.message ?? 'Failed to cancel event');
+                  } else {
+                    toast.error('Failed to cancel event');
+                  }
                 }
               })
             }

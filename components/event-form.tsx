@@ -19,8 +19,10 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+type EventActionResult = { ok: boolean; id?: string };
+
 type Props = {
-  action: (input: EventInputType) => Promise<any>; // 🔹 can be create or update
+  action: (input: EventInputType) => Promise<EventActionResult>;
   venues: { id: string; name: string; city: string | null }[];
   sports: string[];
   initialValues?: Partial<EventInputType>;
@@ -59,8 +61,12 @@ export default function EventForm({
           );
           router.push('/dashboard');
         }
-      } catch (e: any) {
-        toast.error(e.message ?? 'Failed to submit event');
+      } catch (e: unknown) {
+          if (e instanceof Error) {
+            toast.error(e.message ?? 'Failed to create/update event');
+          } else {
+            toast.error("Failed to create/update event")
+          }
       }
     });
   };

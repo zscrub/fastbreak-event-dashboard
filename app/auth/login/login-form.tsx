@@ -1,33 +1,30 @@
 'use client';
 
 import { useTransition } from 'react';
-import { toast } from 'sonner';
-import { signInWithPasswordAction, signInWithGoogleAction } from '@/actions/auth';
+import { signInWithGoogleAction } from '@/actions/auth';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label'; // if missing: npx shadcn@latest add label
 
 export default function LoginForm() {
-  const [pending, start] = useTransition();
+  // const [_, start] = useTransition();
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  // const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.currentTarget);
 
-    start(async () => {
-      const res = await signInWithPasswordAction(formData);
-      if (res && !res.ok) toast.error(res.message);
-      // success path redirects server-side to /dashboard
-    });
-  };
+  //   start(async () => {
+  //     const res = await signInWithPasswordAction(formData);
+  //     if (res && !res.ok) toast.error(res.message);
+  //     // success path redirects server-side to /dashboard
+  //   });
+  // };
 
-  const onGoogle = () => {
-    start(async () => {
-      const res = await signInWithGoogleAction();
-      if (res?.ok && res.url) window.location.href = res.url;
-      else toast.error(res?.message ?? 'Failed to start Google sign-in');
-    });
-  };
+  // const onGoogle = () => {
+  //   start(async () => {
+  //     const res = await signInWithGoogleAction();
+  //     if (res?.ok && res.url) window.location.href = res.url;
+  //     else toast.error(res?.message ?? 'Failed to start Google sign-in');
+  //   });
+  // };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6">

@@ -6,6 +6,7 @@ import DeleteButton from './DeleteButton';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { EventWithVenues } from '@/types/event';
 
 type Props = {
   searchParams: { q?: string; sport?: string };
@@ -32,7 +33,12 @@ export default async function DashboardPage({ searchParams }: Props) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold">Sports Events</h1>
         <Button asChild>
-          <a href="/events/new">+ Create Event</a>
+           <Link
+            href={'/events/new'}
+            className="transition cursor-pointer"
+            >
+              <div className="font-semibold">Create Event</div>
+            </Link>
         </Button>
       </div>
 
@@ -42,7 +48,7 @@ export default async function DashboardPage({ searchParams }: Props) {
       {/* Events */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.length > 0 ? (
-          events.map((event: any) => (
+          events.map((event: EventWithVenues) => (
             <Card key={event.id}>
                 <CardHeader>
                   <Link
@@ -57,7 +63,8 @@ export default async function DashboardPage({ searchParams }: Props) {
                   <p className="text-sm text-gray-600">{event.sport_type}</p>
                   <p className="text-sm">{new Date(event.starts_at).toLocaleDateString()}</p>
                   <p className="text-sm text-gray-500">
-                    {event.event_venues?.[0]?.venues?.name ?? '—'}
+                    {event.event_venues?.[0]?.venues?.[0]?.name ?? '—'}
+
                   </p>
 
                   {event.owner_id === userId && (
@@ -68,7 +75,12 @@ export default async function DashboardPage({ searchParams }: Props) {
                         size="sm"
                         className="text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
-                        <a href={`/events/${event.id}/edit`}>Edit</a>
+                         <Link
+                          href={`/events/${event.id}/edit`}
+                          className="transition cursor-pointer"
+                          >
+                          <div className="font-semibold">Edit</div>
+                      </Link>
                       </Button>
 
                       <DeleteButton
