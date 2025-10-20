@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default async function DashboardPage({ searchParams }: Props) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // 🔒 Auth check
   const {

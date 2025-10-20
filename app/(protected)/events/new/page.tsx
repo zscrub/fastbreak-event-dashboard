@@ -5,7 +5,7 @@ import { createEvent } from '@/actions/events';
 
 export default async function NewEventPage() {
   // auth gate
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
 

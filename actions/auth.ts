@@ -7,7 +7,7 @@ export async function signInWithPasswordAction(formData: FormData) {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
@@ -19,7 +19,7 @@ export async function signInWithPasswordAction(formData: FormData) {
 }
 
 export async function signInWithGoogleAction() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -31,7 +31,7 @@ export async function signInWithGoogleAction() {
 }
 
 export async function signOutAction() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect('/login');
 }

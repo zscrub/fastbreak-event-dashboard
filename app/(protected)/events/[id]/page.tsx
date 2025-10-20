@@ -8,7 +8,7 @@ import { deleteEvent } from '@/actions/events';
 type Props = { params: { id: string } };
 
 export default async function EventDetailsPage({ params }: Props) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

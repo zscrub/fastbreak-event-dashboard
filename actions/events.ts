@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { EventInputType } from '@/lib/validators/event';
 
 export async function getEvents(filters?: { q?: string; sport?: string }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from('events')
@@ -21,7 +21,7 @@ export async function getEvents(filters?: { q?: string; sport?: string }) {
 }
 
 export async function createEvent(input: EventInputType) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: event, error: eventErr } = await supabase
     .from('events')
@@ -47,7 +47,7 @@ export async function createEvent(input: EventInputType) {
 }
 
 export async function updateEvent(id: string, input: EventInputType) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // 1️⃣ Update the main event
   const { data, error } = await supabase
@@ -96,7 +96,7 @@ export async function updateEvent(id: string, input: EventInputType) {
 }
 
 export async function deleteEvent(id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // 1️⃣ Attempt to delete the event
   const { data, error } = await supabase

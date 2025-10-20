@@ -37,7 +37,7 @@ export default function EventForm({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const form = useForm<EventInputType>({
+  const form = useForm({
     resolver: zodResolver(EventInput),
     defaultValues: {
       name: '',
@@ -150,7 +150,7 @@ export default function EventForm({
               <FormLabel>Venues</FormLabel>
               <div className="grid gap-2">
                 {venues.map((v) => {
-                  const checked = form.watch('venue_ids').includes(v.id);
+                  const checked = (form.watch('venue_ids') ?? []).includes(v.id);
                   return (
                     <label key={v.id} className="flex items-center gap-2">
                       <input
@@ -158,7 +158,7 @@ export default function EventForm({
                         className="h-4 w-4"
                         checked={checked}
                         onChange={(e) => {
-                          const current = form.getValues('venue_ids');
+                          const current = form.getValues('venue_ids') ?? [];
                           form.setValue(
                             'venue_ids',
                             e.target.checked
