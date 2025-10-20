@@ -1,27 +1,31 @@
 // app/(auth)/callback/route.ts
-import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get('code');
+  const code = requestUrl.searchParams.get("code");
 
-  // Always redirect to dashboard (or wherever)
-  const redirectUrl = new URL('/dashboard', request.url);
+  if (!code) {
+    // No code in URL — just go back to login
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // We’ll redirect the user here after successful login
+  const redirectUrl = new URL("/dashboard", request.url);
   const response = NextResponse.redirect(redirectUrl);
 
-  if (!code) return response;
-
+  // Create a Supabase client bound to this request/response
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
+        // Required for Vercel’s Edge runtime
         getAll() {
           return request.cookies.getAll();
         },
         setAll(cookies) {
-          // ✅ Properly sets returned session cookies on response
           cookies.forEach(({ name, value, ...options }) => {
             response.cookies.set({ name, value, ...options });
           });
@@ -31,11 +35,13 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) console.error('Auth exchange error:', error);
-    else console.log('✅ Session exchange success:', data?.session?.user?.email);
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("Supabase exchangeCodeForSession error:", error.message);
+      return NextResponse.redirect(new URL("/login?error=auth", request.url));
+    }
   } catch (err) {
-    console.error('Callback handler error:', err);
+    console.error("Callback error:", err);
   }
 
   return response;
