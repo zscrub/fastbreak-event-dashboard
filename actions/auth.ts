@@ -23,7 +23,9 @@ export async function signInWithGoogleAction() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/callback`,
+    //   redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://localhost:3000'}/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/callback`,
+
     },
   });
   if (error) return { ok: false, message: error.message };
