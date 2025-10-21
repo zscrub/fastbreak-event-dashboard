@@ -17,12 +17,16 @@ export default async function EventDetailsPage({ params }: Props) {
   const { data: event, error } = await supabase
     .from('events')
     .select(
-      'id, name, description, sport_type, starts_at, event_venues(venues(name, city))'
+    //   'id, name, description, sport_type, starts_at, event_venues(venues(name, city))'
+      'id, name, description, sport_type, starts_at, owner_id, event_venues(venues(name, city))'
+
     )
     .eq('id', params.id)
     .single();
 
   if (error || !event) return notFound();
+  
+  const isOwner = session.user.id === event.owner_id;
 
   return (
     <div className="p-6 flex justify-center">
@@ -53,18 +57,20 @@ export default async function EventDetailsPage({ params }: Props) {
               ))}
             </ul>
           </div>
+          {isOwner && (
+            <div className="flex gap-2 pt-4">
+                <Button asChild variant="outline" size="sm">
+                <a href={`/events/${event.id}/edit`}>Edit</a>
+                </Button>
+                <DeleteButton
+                onDelete={async () => {
+                    'use server';
+                    await deleteEvent(event.id);
+                }}
+                />
+            </div>
+          )}
 
-          <div className="flex gap-2 pt-4">
-            <Button asChild variant="outline" size="sm">
-              <a href={`/events/${event.id}/edit`}>Edit</a>
-            </Button>
-            <DeleteButton
-              onDelete={async () => {
-                'use server';
-                await deleteEvent(event.id);
-              }}
-            />
-          </div>
         </CardContent>
       </Card>
     </div>
