@@ -1,9 +1,7 @@
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { Button } from '@/components/ui/button';
-import { signOutAction } from '@/actions/auth';
-import Link from 'next/link';
+import Navbar from '@/components/navbar';
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -12,17 +10,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b p-4 flex items-center justify-between">
-        <Link
-            href={'/dashboard'}
-            className="transition cursor-pointer"
-            >
-            <div className="font-semibold">Sports Events</div>
-        </Link>
-        <form action={signOutAction}>
-          <Button variant="outline" type="submit">Sign out</Button>
-        </form>
-      </header>
+      <Navbar />
       <main>{children}</main>
     </div>
   );
